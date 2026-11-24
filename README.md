@@ -53,9 +53,6 @@ Check that Unity Hub can open **Unity 6.3 LTS**. Our teaching baseline is **6000
     The rival's NavMeshAgent controls the movement by using the baked NavMesh. The baked clearance is set to 0.5 radius and 2 height with 0.75 step height. The rival's avoidance is set to 0.45 radius and 1.5 height.
 
 2. Locate `Runtime/Navigator.cs`. Trace one request from `RivalBrain` to `SetDestination`, then back through `Poll` and `Core/NavigationFeedback.Classify`.
-
-    
-
 3. Predict the result of four snapshots: pending with unknown remaining distance; a partial route near its endpoint; a complete route still four units away; and a complete route within stopping distance. Discuss before running the supplied tests.
 4. Watch the debug panel's task, target, travel status, decision count and destination-request count. Explain why decisions can increase without requesting a new route each time.
 5. In the stopped normal scene, move one existing shelf slightly, rebake the NavMesh using the NavMeshSurface Inspector, and predict the changed route. Run and observe. Restore the original shelf and rebake before saving the baseline. Keep all work in this project.

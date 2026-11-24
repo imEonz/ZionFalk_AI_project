@@ -39,47 +39,54 @@ namespace SalvageSprint
         private void Update()
         {
             if (!match.IsRunning) { navigator.Cancel(); return; }
-
             TravelStatus travel = navigator.Poll();
-
             if (Time.time < nextDecision) return;
-            
+
             nextDecision = Time.time + decisionInterval;
 
+            // If we are trying to get to a ID that we already recognised as failed previously then give dome debug info.
             if (travel == TravelStatus.Failed && rememberedId >= 0)
             {
                 failedUntil[rememberedId] = Time.time + 6;
                 LastFailure = "Route failed for pickup " + rememberedId + "; ignore for 6 seconds";
             }
-
+            
+            // IF the remmebered Id no longer exists then reset it to -1
             if (rememberedId >= 0 && !match.IsAvailable(rememberedId)) rememberedId = -1;
 
+
+            // walk between survey points in a loop.
             if (CurrentDecision.Task == TaskKind.Explore && (travel == TravelStatus.Arrived || travel == TravelStatus.Failed))
                 surveyIndex = (surveyIndex + 1) % surveyPoints.Length;
 
+            // Isblocked sends over the function to the sensor.
             LastObservation = sensor.Capture(actor, rememberedId, IsBlocked);
             CurrentFacts = DecisionPolicy.Infer(LastObservation);
             Decision next = DecisionPolicy.Choose(CurrentFacts);
+
+            // If the task has changed then make a bool true to debug log it later and blah blah
             bool changed = next.Task != CurrentDecision.Task || next.TargetId != CurrentDecision.TargetId;
             CurrentDecision = next;
             DecisionCount++;
+            if (changed && logDecisionChanges) Debug.Log($"[{Time.time:F1}] {next.Task} target={next.TargetId}: {next.Reason}", this);
 
-            if (changed && logDecisionChanges)
-                Debug.Log($"[{Time.time:F1}] {next.Task} target={next.TargetId}: {next.Reason}", this);
-
+            // If the rival has scrap then return it to depot has highest priority
             if (next.Task == TaskKind.Deliver)
             {
                 rememberedId = -1;
                 navigator.Request(-2, actor.DepotPosition);
             }
+            // Otherwise if the rival has tasks pending aka scrap that they think they can get to then 
             else if (next.Task == TaskKind.Collect)
             {
                 rememberedId = next.TargetId;
                 SalvagePickup target = match.GetPickup(next.TargetId);
+                
                 if (target != null && match.IsAvailable(next.TargetId))
                     navigator.Request(next.TargetId, target.transform.position);
                 else navigator.Cancel();
             }
+            // if the rival has no scrap in the vicinity then roam around in set points in a loop until a scrap is found.
             else
             {
                 rememberedId = -1;

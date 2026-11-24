@@ -37,6 +37,7 @@ namespace SalvageSprint
             agent.isStopped = false;
             DestinationRequests++;
 
+            // If the destination is not null then set the travelstatus to pending.
             Status = agent.SetDestination(destination) ? TravelStatus.Pending : TravelStatus.Failed;
         }
 
