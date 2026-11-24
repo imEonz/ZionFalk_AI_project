@@ -39,17 +39,22 @@ namespace SalvageSprint
         private void Update()
         {
             if (!match.IsRunning) { navigator.Cancel(); return; }
+
             TravelStatus travel = navigator.Poll();
+
             if (Time.time < nextDecision) return;
+            
             nextDecision = Time.time + decisionInterval;
+
             if (travel == TravelStatus.Failed && rememberedId >= 0)
             {
                 failedUntil[rememberedId] = Time.time + 6;
                 LastFailure = "Route failed for pickup " + rememberedId + "; ignore for 6 seconds";
             }
+
             if (rememberedId >= 0 && !match.IsAvailable(rememberedId)) rememberedId = -1;
-            if (CurrentDecision.Task == TaskKind.Explore
-                && (travel == TravelStatus.Arrived || travel == TravelStatus.Failed))
+
+            if (CurrentDecision.Task == TaskKind.Explore && (travel == TravelStatus.Arrived || travel == TravelStatus.Failed))
                 surveyIndex = (surveyIndex + 1) % surveyPoints.Length;
 
             LastObservation = sensor.Capture(actor, rememberedId, IsBlocked);
@@ -58,6 +63,7 @@ namespace SalvageSprint
             bool changed = next.Task != CurrentDecision.Task || next.TargetId != CurrentDecision.TargetId;
             CurrentDecision = next;
             DecisionCount++;
+
             if (changed && logDecisionChanges)
                 Debug.Log($"[{Time.time:F1}] {next.Task} target={next.TargetId}: {next.Reason}", this);
 

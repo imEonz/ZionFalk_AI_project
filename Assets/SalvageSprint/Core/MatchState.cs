@@ -19,11 +19,11 @@ namespace SalvageSprint.Core
         {
             if (pickupIds == null) throw new ArgumentNullException(nameof(pickupIds));
             if (goal < 1) throw new ArgumentOutOfRangeException(nameof(goal));
-            if (double.IsNaN(seconds) || double.IsInfinity(seconds) || seconds <= 0)
-                throw new ArgumentOutOfRangeException(nameof(seconds));
+            if (double.IsNaN(seconds) || double.IsInfinity(seconds) || seconds <= 0) throw new ArgumentOutOfRangeException(nameof(seconds));
+
             foreach (int id in pickupIds)
-                if (id < 0 || !available.Add(id))
-                    throw new ArgumentException("Pickup IDs must be unique and non-negative.");
+                if (id < 0 || !available.Add(id)) throw new ArgumentException("Pickup IDs must be unique and non-negative.");
+
             Goal = goal;
             TimeRemaining = seconds;
             Outcome = MatchOutcome.Running;
@@ -45,20 +45,24 @@ namespace SalvageSprint.Core
         {
             ValidateTeam(team);
             if (Outcome != MatchOutcome.Running || !cargo[team]) return false;
+
             cargo[team] = false;
             scores[team]++;
+
             if (scores[team] >= Goal)
                 Outcome = team == 0 ? MatchOutcome.PlayerWins : MatchOutcome.RivalWins;
+
             return true;
         }
 
         public void Tick(double seconds)
         {
-            if (double.IsNaN(seconds) || double.IsInfinity(seconds) || seconds < 0)
-                throw new ArgumentOutOfRangeException(nameof(seconds));
+            if (double.IsNaN(seconds) || double.IsInfinity(seconds) || seconds < 0) throw new ArgumentOutOfRangeException(nameof(seconds));
             if (Outcome != MatchOutcome.Running) return;
+
             TimeRemaining = Math.Max(0, TimeRemaining - seconds);
             if (TimeRemaining > 0) return;
+            
             Outcome = scores[0] > scores[1] ? MatchOutcome.PlayerWins
                 : scores[1] > scores[0] ? MatchOutcome.RivalWins : MatchOutcome.Draw;
         }

@@ -55,17 +55,21 @@ namespace SalvageSprint
             {
                 if (!IsRunning) break;
                 Vector3 position = actor.transform.position;
+
                 if (actor.Carrying && FlatDistanceSquared(position, actor.DepotPosition) <= 1.7f * 1.7f)
                     State.TryDeliver(actor.Team);
+
                 if (!IsRunning || actor.Carrying) continue;
+
                 foreach (SalvagePickup item in pickups)
                 {
                     if (!State.IsAvailable(item.Id) || FlatDistanceSquared(position, item.transform.position) > 1.1f * 1.1f)
                         continue;
+
                     if (Physics.Linecast(position + Vector3.up * .5f, item.transform.position + Vector3.up * .5f,
-                        sightBlockers, QueryTriggerInteraction.Ignore)) continue;
-                    if (State.TryCollect(actor.Team, item.Id)) item.gameObject.SetActive(false);
-                    break;
+                            sightBlockers, QueryTriggerInteraction.Ignore)) continue;
+
+                    if (State.TryCollect(actor.Team, item.Id)) item.gameObject.SetActive(false); break;
                 }
             }
         }
@@ -78,6 +82,7 @@ namespace SalvageSprint
         {
             // Only used by the clearly labelled target-loss scene, never by the normal race.
             if (!State.TryCollect(0, id)) return false;
+            
             GetPickup(id).gameObject.SetActive(false);
             return true;
         }
