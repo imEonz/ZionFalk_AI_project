@@ -12,12 +12,21 @@ namespace SalvageSprint.Core
         {
             if (observation.Carrying) return new AgentFacts(true, -1, false);
 
+            // if the candidate is remembered aka it's the one the rival is going for then dont go for the nearest candidate
+            foreach (Candidate item in observation.Candidates)
+            {
+                if (item.Remembered && item.Available && !item.Blocked && (item.Visible || item.Remembered)) return new AgentFacts(false, item.Id, true);
+            }
+
             int nearest = -1;
             float distance = float.PositiveInfinity;
             
             foreach (Candidate candidate in observation.Candidates)
             {
+                bool known = candidate.Available && !candidate.Blocked && (candidate.Visible || candidate.Remembered);
+                if (!known) continue;
                 // Deliberately naive: ignores Visible, Remembered and Blocked.
+                // Using this, the rival would attempt to move towards a candidate that is not reachable without the known bool.
                 if (candidate.Available && candidate.DistanceSquared < distance)
                 { 
                     nearest = candidate.Id; 
@@ -34,7 +43,7 @@ namespace SalvageSprint.Core
             if (facts.NeedsDelivery) return new Decision(TaskKind.Deliver, -1, "Cargo held: return to depot");
 
             return facts.HasUsableTarget
-                ? new Decision(TaskKind.Collect, facts.SelectedTargetId, "Nearest candidate; reselected each tick")
+                ? new Decision(TaskKind.Collect, facts.SelectedTargetId, facts.RetainedTarget ? "Ignoring nearer candidates, has remembered" :"Nearest candidate; reselected each tick")
                 : new Decision(TaskKind.Explore, -1, "No candidate: visit the next survey point");
         }
     }

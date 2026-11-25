@@ -81,10 +81,22 @@ A range-query candidate is not automatically something the rival knows about. St
 **Support:** guided reasoning, then your implementation.
 
 1. Open `Core/DecisionPolicy.Infer`. Explain the current nearest-candidate baseline in your own words. Predict its choice in F4 before running it.
+    Infer returns if holding cargo immediately, otherwise it scans all scrap, keeps the avaiblke one and picks the nearest whilst not caring about remembered, visible or blocked. because of this infer could pick hidden scrap that is nearer than something the ai can actually reach.
 2. Write a tiny truth table: available/visible; available/hidden/unknown; available/hidden/remembered; unavailable/remembered. Decide which candidates are known and usable before considering distance.
+    | Avaible | Visible | Remembered | Usable/Known |
+    | Yes | Yes | Yes | Yes |
+    | Yes | No | No | No |
+    | Yes | No | Yes | Yes |
+    | Yes | Yes | No | Yes |
+    | No | No | Yes | No |
+
 3. Filter out unavailable candidates and unknown hidden candidates. A valid remembered target may remain known outside current sight. Preserve the supplied delivery priority and empty-world fallback.
 4. Compare F4 with the normal race. Use facts and a decision reason to explain the difference.
+    The rival previously only stood still, trying to go for the nearest candidate within the range without being able to since it was not visible or remembered.
+    Now since the decision policy skips unknown candidates, the rival goes to the nearest known candidate before continuing surveilance before being able to spot the scrap behind the wall. The problem now is that the agent seems to not be able to pathfind to the depot because they're behind a wall.
+
 5. Run the Stage2 tests. Also check the cargo and empty-world regressions.
+    Where are the stage2 tests??
 
 **Done:** hidden unknown targets cannot win selection merely because they are nearer. Previously observed targets do not automatically disappear from knowledge when occluded. Suggested commit: `week1: respect perception and memory`.
 
@@ -93,10 +105,19 @@ A range-query candidate is not automatically something the rival knows about. St
 **Support:** a group trace, then your implementation.
 
 1. Predict two successive decisions. The rival knows target 4, distance squared 16. A new visible target 5 appears at distance squared 1. Must the rival abandon its current task?
+    Yes, it's a competition so it should go for nearer scrap first. (i was wrong)
 2. Retain the current remembered target while it remains usable. Do not rely on array position being the same as a pickup ID.
 3. Set `RetainedTarget` truthfully. Use the existing facts and decision reason to explain commitment. You may restructure Infer into small helpers if that improves clarity.
 4. Trace a stolen target in F5. Availability invalidation is supplied in the baseline. Explain which code releases the old target rather than pretending that every green check requires another repair.
+    MatchController marks the pickup unavailable when the other agent collects it so on the next decision the RivalBrain.Update runs if (rememberedId >= 0 && !match.IsAvailable(rememberedId)) rememberedId = -1; so it forgets the scrap it was going for. After that runs the sensor.Capture with -1 which wont match any scrap and the sensor skips unavaible items with !math.IsAvaible. So Infer finds no remembered candidate so then goes through with the nearest known selection or explores if there is no nearest known candidate.
+
 5. Draw or describe the Explore/Collect/Deliver transitions in EVIDENCE.md. Include the conditions: discovery, successful collection, delivery and loss of a usable target.
+    Explore -> Collect: A candidate is found by the sensor that is visible.
+    Collect -> Collect The candidate is still remembered and the AI is still going for it.
+    Collect -> Deliver: The rival collected the scrap and needs to drop it off at the depot.
+    Deliver -> Explore: Deliver is finished and there is no known scrap nearby.
+    Deliver -> Collect: Deliver is finished and there is already a known scrap to collect.
+    Collect -> Explore, or Collect → Collect: Scrap was picked up by player so its forgotten and the selection happens again.
 
 **Done:** a closer distraction does not cause unnecessary target switching, and unavailable targets can still be released. Route-failure cases remain for Stage 4. Suggested commit: `week1: keep a usable task`.
 
