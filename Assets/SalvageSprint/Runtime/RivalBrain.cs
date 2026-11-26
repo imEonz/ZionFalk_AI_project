@@ -50,6 +50,8 @@ namespace SalvageSprint
                 failedUntil[rememberedId] = Time.time + 6;
                 LastFailure = "Route failed for pickup " + rememberedId + "; ignore for 6 seconds";
             }
+            if (travel == TravelStatus.Failed && CurrentDecision.Task == TaskKind.Deliver)
+            LastFailure = "Deliver route failed (" + Time.time.ToString("F1") + "); retrying";
             
             // IF the remmebered Id no longer exists then reset it to -1
             if (rememberedId >= 0 && !match.IsAvailable(rememberedId)) rememberedId = -1;
