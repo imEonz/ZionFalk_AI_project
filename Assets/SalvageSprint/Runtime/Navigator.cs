@@ -93,12 +93,6 @@ namespace SalvageSprint
             if (Status == TravelStatus.Failed && agent.isOnNavMesh)
             { 
                 agent.isStopped = true; 
-                var p = new NavMeshPath();
-                bool got = NavMesh.CalculatePath(transform.position, goal, NavMesh.AllAreas, p);
-                bool agentOnMesh = NavMesh.SamplePosition(transform.position, out var aHit, 0.5f, NavMesh.AllAreas);
-                bool goalOnMesh = NavMesh.SamplePosition(goal, out var gHit, 2f, NavMesh.AllAreas);
-                Debug.Log($"Nav fail: calc={got} status={p.status} agentOnMesh={agentOnMesh} " +
-                        $"goalOnMesh={goalOnMesh} agentPos={transform.position} snappedGoal={gHit.position}", this);
                 agent.ResetPath(); 
             }
 

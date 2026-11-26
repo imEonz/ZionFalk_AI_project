@@ -106,6 +106,7 @@ A range-query candidate is not automatically something the rival knows about. St
 
 1. Predict two successive decisions. The rival knows target 4, distance squared 16. A new visible target 5 appears at distance squared 1. Must the rival abandon its current task?
     Yes, it's a competition so it should go for nearer scrap first. (i was wrong)
+    
 2. Retain the current remembered target while it remains usable. Do not rely on array position being the same as a pickup ID.
 3. Set `RetainedTarget` truthfully. Use the existing facts and decision reason to explain commitment. You may restructure Infer into small helpers if that improves clarity.
 4. Trace a stolen target in F5. Availability invalidation is supplied in the baseline. Explain which code releases the old target rather than pretending that every green check requires another repair.
