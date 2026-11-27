@@ -47,13 +47,13 @@ Collect -> Explore, or Collect → Collect: Scrap was picked up by player so its
 |---|---|---|
 | Normal loop and restart | Collect, Deliver, Explore for more scrap repeat. | The rival collected all scrp near it succesfully, then proceeded to explore for more until it or the player won. |
 | Carrying cargo | Deliver first then go for more scrap | It first delivered scrap, then collected other scrap. |
-| Hidden / remembered pickup | Ignore the hidden pickup and explore after collecting the visible scrap |  |
-| Target taken | Release the remembered scrap and continue | |
-| Unreachable target | Pick another scrap to go for and send fail feedback | |
-| No usable pickup | Continue to explore in a loop forever | |
+| Hidden / remembered pickup | Ignore the hidden pickup and explore after collecting the visible scrap | The AI goes to collect the visible scrap then explores, upon seeing the hidden scrap behind the wall it goes to collect it then succesfully deposits. |
+| Target taken | Release the remembered scrap and continue | The AI forgets the scrap it was going for, observes nearby and collects the nearest avaible and visible scrap. |
+| Unreachable target | Pick another scrap to go for and send fail feedback | The AI sends a blocked scrap feedback and goes for the visible and avaible scrap further away. |
+| No usable pickup | Continue to explore in a loop forever | The rival continues to survey the points across the map in a loop forever. |
 
 Supplied test result, with any added tests identified: Salvage Sprint (22 tests) (0.011s)
-Live walkthrough checked by / recording link if used: 
+Live walkthrough checked by / recording link if used: Did not use a walkthrough.
 
 ## One correction and one independent check
 
